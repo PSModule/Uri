@@ -120,7 +120,7 @@
     }
 }
 
-Describe 'Get-Uri Function Tests' {
+Describe 'Get-Uri' {
     Context 'Default Behavior (returns a [System.Uri] object)' {
 
         It 'Should return a valid System.Uri when given a URI with scheme' {
@@ -199,10 +199,8 @@ Describe 'Get-Uri Function Tests' {
     }
 
     Context 'Edge Cases' {
-        It 'Should handle relative URIs correctly' {
-            $result = Get-Uri -Uri '/path/to/resource'
-            $result | Should -BeOfType 'System.Uri'
-            $result.IsAbsoluteUri | Should -Be $false
+        It 'Should throw with relative URIs' {
+            { Get-Uri -Uri '/path/to/resource' } | Should -Throw
         }
 
         It 'Should handle URIs with ports' {
@@ -215,6 +213,33 @@ Describe 'Get-Uri Function Tests' {
             $result = Get-Uri -Uri 'https://example.com?query=test'
             $result | Should -BeOfType 'System.Uri'
             $result.Query | Should -Be '?query=test'
+        }
+
+        It 'Should handle URIs with multiple query strings' {
+            $result = Get-Uri -Uri 'https://example.com?query=test&sort=asc&page=1'
+            $result | Should -BeOfType 'System.Uri'
+            $result.Query | Should -Be '?query=test'
+        }
+
+        It 'Should handle URIs with query strings and fragments' {
+            $result = Get-Uri -Uri 'https://example.com?query=test#section1'
+            $result | Should -BeOfType 'System.Uri'
+            $result.Query | Should -Be '?query=test'
+            $result.Fragment | Should -Be 'section1'
+        }
+
+        # Uri + same key query string and fragment
+        It 'Should handle URIs with query strings and fragments' {
+            $result = Get-Uri -Uri 'https://example.com?include=test&include=dev&include=prod#section1'
+            $result | Should -BeOfType 'System.Uri'
+            $result.Query | Should -Be '?include=test&include=dev&include=prod'
+            $result.Fragment | Should -Be 'section1'
+        }
+
+        It 'Should handle URIs with fragments' {
+            $result = Get-Uri -Uri 'https://example.com#section1'
+            $result | Should -BeOfType 'System.Uri'
+            $result.Fragment | Should -Be 'section1'
         }
 
         It 'Should handle IPv6 addresses' {
