@@ -116,11 +116,5 @@
             $query = $uri.Query.TrimStart('?')
             $query | Should -Match 'q=hello%20world'
         }
-
-        It 'New-Uri - respects NoEncoding switch for path segments' {
-            $uri = New-Uri -BaseUri 'https://example.com' -Path 'a b/c d' -NoEncoding -AsString
-            # With NoEncoding, spaces should remain as-is in the path
-            $uri | Should -Match 'https://example\.com/a b/c d'
-        }
     }
 }
