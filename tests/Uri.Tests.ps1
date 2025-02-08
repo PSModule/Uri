@@ -27,8 +27,9 @@
 
         It 'ConvertFrom-UriQueryString - removes leading question mark if present' {
             $result1 = ConvertFrom-UriQueryString -Query '?foo=bar'
-            $result2 = ConvertFrom-UriQueryString -Query 'foo=bar'
             $result1.foo | Should -Be 'bar'
+
+            $result2 = ConvertFrom-UriQueryString -Query 'foo=bar'
             $result2.foo | Should -Be 'bar'
         }
 
@@ -115,6 +116,153 @@
             $uri = New-Uri -BaseUri 'https://example.com/api' -Path 'search' -Query '?q=hello%20world'
             $query = $uri.Query.TrimStart('?')
             $query | Should -Match 'q=hello%20world'
+        }
+    }
+}
+
+Describe 'Get-Uri Function Tests' {
+    Context 'Default Behavior (returns a [System.Uri] object)' {
+
+        It 'Should return a valid System.Uri when given a URI with scheme' {
+            $result = Get-Uri -Uri 'https://example.com/path'
+            $result | Should -BeOfType 'System.Uri'
+            $result.Scheme | Should -Be 'https'
+            $result.Host | Should -Be 'example.com'
+        }
+
+        It 'Should add default scheme (http) when missing' {
+            $result = Get-Uri -Uri 'example.com/path'
+            $result | Should -BeOfType 'System.Uri'
+            $result.Scheme | Should -Be 'http'
+            $result.Host | Should -Be 'example.com'
+        }
+    }
+
+    Context 'Switch: -AsUriBuilder' {
+
+        It 'Should return a System.UriBuilder object' {
+            $result = Get-Uri -Uri 'https://example.com/path' -AsUriBuilder
+            $result | Should -BeOfType 'System.UriBuilder'
+            $result.Uri.Scheme | Should -Be 'https'
+            $result.Uri.Host | Should -Be 'example.com'
+        }
+    }
+
+    Context 'Switch: -AsString' {
+
+        It 'Should return a normalized URI string' {
+            # Example with uppercase scheme and percent-encoded characters
+            $inputUri = 'HTTP://Example.com/%7Euser/path/page.html'
+            $result = Get-Uri -Uri $inputUri -AsString
+            $expected = 'http://example.com/~user/path/page.html'
+            $result | Should -Be $expected
+        }
+    }
+
+    Context 'Error Handling' {
+
+        It 'Should throw an error for an invalid URI' {
+            { Get-Uri -Uri 'http://??' } | Should -Throw
+        }
+
+        It 'Should throw an error when both -AsUriBuilder and -AsString are provided' {
+            { Get-Uri -Uri 'https://example.com' -AsUriBuilder -AsString } | Should -Throw
+        }
+
+        It 'Should throw an error when an empty URI string is provided' {
+            { Get-Uri -Uri '' } | Should -Throw
+        }
+    }
+
+    Context 'Pipeline Input' {
+
+        It 'Should accept pipeline input and return a valid [System.Uri]' {
+            'example.com/path' | Get-Uri | ForEach-Object {
+                $_ | Should -BeOfType 'System.Uri'
+                $_.Scheme | Should -Be 'http'
+            }
+        }
+
+        It 'Should return a valid System.Uri when given a URI with scheme' {
+            $result = Get-Uri -Uri 'https://example.com/path'
+            $result | Should -BeOfType 'System.Uri'
+            $result.Scheme | Should -Be 'https'
+            $result.Host | Should -Be 'example.com'
+        }
+
+        It 'Should add default scheme (http) when missing' {
+            $result = Get-Uri -Uri 'example.com/path'
+            $result | Should -BeOfType 'System.Uri'
+            $result.Scheme | Should -Be 'http'
+            $result.Host | Should -Be 'example.com'
+        }
+    }
+
+    Context 'Edge Cases' {
+        It 'Should handle relative URIs correctly' {
+            $result = Get-Uri -Uri '/path/to/resource'
+            $result | Should -BeOfType 'System.Uri'
+            $result.IsAbsoluteUri | Should -Be $false
+        }
+
+        It 'Should handle URIs with ports' {
+            $result = Get-Uri -Uri 'http://example.com:8080'
+            $result | Should -BeOfType 'System.Uri'
+            $result.Port | Should -Be 8080
+        }
+
+        It 'Should handle URIs with query strings' {
+            $result = Get-Uri -Uri 'https://example.com?query=test'
+            $result | Should -BeOfType 'System.Uri'
+            $result.Query | Should -Be '?query=test'
+        }
+
+        It 'Should handle IPv6 addresses' {
+            $result = Get-Uri -Uri 'http://[::1]'
+            $result | Should -BeOfType 'System.Uri'
+            $result.Host | Should -Be '[::1]'
+        }
+    }
+
+    Context 'Switch: -AsUriBuilder' {
+        It 'Should return a System.UriBuilder object' {
+            $result = Get-Uri -Uri 'https://example.com/path' -AsUriBuilder
+            $result | Should -BeOfType 'System.UriBuilder'
+            $result.Uri.Scheme | Should -Be 'https'
+            $result.Uri.Host | Should -Be 'example.com'
+        }
+    }
+
+    Context 'Switch: -AsString' {
+        It 'Should return a normalized URI string' {
+            # Example with uppercase scheme and percent-encoded characters
+            $inputUri = 'HTTP://Example.com/%7Euser/path/page.html'
+            $result = Get-Uri -Uri $inputUri -AsString
+            $expected = 'http://example.com/~user/path/page.html'
+            $result | Should -Be $expected
+        }
+    }
+
+    Context 'Error Handling' {
+        It 'Should throw an error for an invalid URI' {
+            { Get-Uri -Uri 'http://??' } | Should -Throw
+        }
+
+        It 'Should throw an error when both -AsUriBuilder and -AsString are provided' {
+            { Get-Uri -Uri 'https://example.com' -AsUriBuilder -AsString } | Should -Throw
+        }
+
+        It 'Should throw an error when an empty URI string is provided' {
+            { Get-Uri -Uri '' } | Should -Throw
+        }
+    }
+
+    Context 'Pipeline Input' {
+        It 'Should accept pipeline input and return a valid [System.Uri]' {
+            'example.com/path' | Get-Uri | ForEach-Object {
+                $_ | Should -BeOfType 'System.Uri'
+                $_.Scheme | Should -Be 'http'
+            }
         }
     }
 }
