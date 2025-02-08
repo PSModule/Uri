@@ -125,6 +125,7 @@ Describe 'Get-Uri' {
 
         It 'Should return a valid System.Uri when given a URI with scheme' {
             $result = Get-Uri -Uri 'https://example.com/path'
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $result | Should -BeOfType 'System.Uri'
             $result.Scheme | Should -Be 'https'
             $result.Host | Should -Be 'example.com'
@@ -132,6 +133,7 @@ Describe 'Get-Uri' {
 
         It 'Should add default scheme (http) when missing' {
             $result = Get-Uri -Uri 'example.com/path'
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $result | Should -BeOfType 'System.Uri'
             $result.Scheme | Should -Be 'http'
             $result.Host | Should -Be 'example.com'
@@ -142,6 +144,7 @@ Describe 'Get-Uri' {
 
         It 'Should return a System.UriBuilder object' {
             $result = Get-Uri -Uri 'https://example.com/path' -AsUriBuilder
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $result | Should -BeOfType 'System.UriBuilder'
             $result.Uri.Scheme | Should -Be 'https'
             $result.Uri.Host | Should -Be 'example.com'
@@ -154,6 +157,7 @@ Describe 'Get-Uri' {
             # Example with uppercase scheme and percent-encoded characters
             $inputUri = 'HTTP://Example.com/%7Euser/path/page.html'
             $result = Get-Uri -Uri $inputUri -AsString
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $expected = 'http://example.com/~user/path/page.html'
             $result | Should -Be $expected
         }
@@ -178,6 +182,7 @@ Describe 'Get-Uri' {
 
         It 'Should accept pipeline input and return a valid [System.Uri]' {
             'example.com/path' | Get-Uri | ForEach-Object {
+                $_ | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
                 $_ | Should -BeOfType 'System.Uri'
                 $_.Scheme | Should -Be 'http'
             }
@@ -185,6 +190,7 @@ Describe 'Get-Uri' {
 
         It 'Should return a valid System.Uri when given a URI with scheme' {
             $result = Get-Uri -Uri 'https://example.com/path'
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $result | Should -BeOfType 'System.Uri'
             $result.Scheme | Should -Be 'https'
             $result.Host | Should -Be 'example.com'
@@ -192,6 +198,7 @@ Describe 'Get-Uri' {
 
         It 'Should add default scheme (http) when missing' {
             $result = Get-Uri -Uri 'example.com/path'
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $result | Should -BeOfType 'System.Uri'
             $result.Scheme | Should -Be 'http'
             $result.Host | Should -Be 'example.com'
@@ -208,24 +215,28 @@ Describe 'Get-Uri' {
 
         It 'Should handle URIs with ports' {
             $result = Get-Uri -Uri 'http://example.com:8080'
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $result | Should -BeOfType 'System.Uri'
             $result.Port | Should -Be 8080
         }
 
         It 'Should handle URIs with query strings' {
             $result = Get-Uri -Uri 'https://example.com?query=test'
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $result | Should -BeOfType 'System.Uri'
             $result.Query | Should -Be '?query=test'
         }
 
         It 'Should handle URIs with multiple query strings' {
             $result = Get-Uri -Uri 'https://example.com?query=test&sort=asc&page=1'
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $result | Should -BeOfType 'System.Uri'
             $result.Query | Should -Be '?query=test&sort=asc&page=1'
         }
 
         It 'Should handle URIs with query strings and fragments' {
             $result = Get-Uri -Uri 'https://example.com?query=test#section1'
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $result | Should -BeOfType 'System.Uri'
             $result.Query | Should -Be '?query=test'
             $result.Fragment | Should -Be '#section1'
@@ -234,6 +245,7 @@ Describe 'Get-Uri' {
         # Uri + same key query string and fragment
         It 'Should handle URIs with query strings and fragments' {
             $result = Get-Uri -Uri 'https://example.com?include=test&include=dev&include=prod#section1'
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $result | Should -BeOfType 'System.Uri'
             $result.Query | Should -Be '?include=test&include=dev&include=prod'
             $result.Fragment | Should -Be '#section1'
@@ -241,12 +253,14 @@ Describe 'Get-Uri' {
 
         It 'Should handle URIs with fragments' {
             $result = Get-Uri -Uri 'https://example.com#section1'
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $result | Should -BeOfType 'System.Uri'
             $result.Fragment | Should -Be '#section1'
         }
 
         It 'Should handle IPv6 addresses' {
             $result = Get-Uri -Uri 'http://[::1]'
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $result | Should -BeOfType 'System.Uri'
             $result.Host | Should -Be '[::1]'
         }
@@ -255,6 +269,7 @@ Describe 'Get-Uri' {
     Context 'Switch: -AsUriBuilder' {
         It 'Should return a System.UriBuilder object' {
             $result = Get-Uri -Uri 'https://example.com/path' -AsUriBuilder
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $result | Should -BeOfType 'System.UriBuilder'
             $result.Uri.Scheme | Should -Be 'https'
             $result.Uri.Host | Should -Be 'example.com'
@@ -266,6 +281,7 @@ Describe 'Get-Uri' {
             # Example with uppercase scheme and percent-encoded characters
             $inputUri = 'HTTP://Example.com/%7Euser/path/page.html'
             $result = Get-Uri -Uri $inputUri -AsString
+            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $expected = 'http://example.com/~user/path/page.html'
             $result | Should -Be $expected
         }
@@ -288,6 +304,7 @@ Describe 'Get-Uri' {
     Context 'Pipeline Input' {
         It 'Should accept pipeline input and return a valid [System.Uri]' {
             'example.com/path' | Get-Uri | ForEach-Object {
+                $_ | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
                 $_ | Should -BeOfType 'System.Uri'
                 $_.Scheme | Should -Be 'http'
             }
