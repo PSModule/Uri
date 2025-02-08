@@ -5,9 +5,9 @@
 
         .DESCRIPTION
         Builds a URI string or object by combining a base URI with additional path segments,
-        query parameters, and an optional fragment. Ensures proper encoding (per RFC3986)
+        query parameters, and an optional fragment. Ensures proper encoding (per [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986))
         and correct placement of '/' in paths, handles query parameter merging, and appends
-        fragment identifiers. By default, returns a System.Uri object.
+        fragment identifiers. By default, returns a `[System.Uri]` object.
 
         .EXAMPLE
         # Simple usage with base and path
@@ -15,29 +15,58 @@
 
         Output:
         ```powershell
-        https://example.com/products/item
+        AbsolutePath   : /products/item
+        AbsoluteUri    : https://example.com/products/item
+        LocalPath      : /products/item
+        Authority      : example.com
+        HostNameType   : Dns
+        IsDefaultPort  : True
+        IsFile         : False
+        IsLoopback     : False
+        PathAndQuery   : /products/item
+        Segments       : {/, products/, item}
+        IsUnc          : False
+        Host           : example.com
+        Port           : 443
+        Query          :
+        Fragment       :
+        Scheme         : https
+        OriginalString : https://example.com:443/products/item
+        DnsSafeHost    : example.com
+        IdnHost        : example.com
+        IsAbsoluteUri  : True
+        UserEscaped    : False
+        UserInfo       :
         ```
 
         Constructs a URI with the given base and path.
 
         .EXAMPLE
         # Adding query parameters via hashtable
-        New-Uri 'https://example.com/api' -Path 'search' -Query @{ q = 'test search'; page = @(2, 4) }
+        New-Uri 'https://example.com/api' -Path 'search' -Query @{ q = 'test search'; page = @(2, 4) } -AsUriBuilder
 
         Output:
         ```powershell
-        https://example.com/api/search?q=test%20search&page=2
+        Scheme   : https
+        UserName :
+        Password :
+        Host     : example.com
+        Port     : 443
+        Path     : /api/search
+        Query    : ?q=test%20search&page=2&page=4
+        Fragment :
+        Uri      : https://example.com/api/search?q=test search&page=2&page=4
         ```
 
         Adds query parameters to the URI, automatically encoding values.
 
         .EXAMPLE
         # Merging with existing query and using -MergeQueryParameter
-        New-Uri 'https://example.com/data?year=2023' -Query @{ year = 2024; sort = 'asc' } -MergeQueryParameters
+        New-Uri 'https://example.com/data?year=2023' -Query @{ year = 2024; sort = 'asc' } -MergeQueryParameters -AsString
 
         Output:
         ```powershell
-        https://example.com/data?year=2023&year=2024&sort=asc
+        https://example.com/data?sort=asc&year=2023&year=2024
         ```
 
         Merges new query parameters with the existing ones instead of replacing them.
@@ -75,12 +104,10 @@
 
         # One or more path segments to append to the base URI.
         [Parameter(Position = 1)]
-        [Alias('Paths')]
         [string[]] $Path,
 
         # Query parameters to add to the URI.
         [Parameter()]
-        [Alias('QueryParameters', 'QueryString')]
         [object] $Query,
 
         # A URI fragment to append (the part after '#').

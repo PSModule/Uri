@@ -39,7 +39,6 @@
         # Values can be strings or other types convertible to string. If a value is an array or collection, each element
         # in it will result in a separate instance of that parameter name in the output string.
         [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
-        [Alias('Params', 'Hashtable')]
         [System.Collections.IDictionary] $Query,
 
         # If set, keys and values are not URL-encoded. Use this only if the inputs are already encoded or consist solely
