@@ -118,10 +118,6 @@
         [Parameter()]
         [switch] $MergeQueryParameters,
 
-        # Disables automatic URL encoding of path, query, and fragment.
-        [Parameter()]
-        [switch] $NoEncoding,
-
         # Outputs the resulting URI as a string.
         [Parameter(Mandatory, ParameterSetName = 'AsString')]
         [switch] $AsString,
@@ -133,7 +129,6 @@
 
     # Validate and prepare base URI
     try {
-        # Accept [System.Uri] or string for base
         $baseUriObj = if ($BaseUri -is [System.Uri]) {
             $BaseUri
         } else {
@@ -165,15 +160,10 @@
             $basePath += '/'
         }
 
-        # Build combined path string from segments
+        # Build combined path string from segments, always encoding
         $encodedSegments = @()
         foreach ($seg in $segments) {
-            if ($NoEncoding) {
-                $encodedSegments += $seg
-            } else {
-                # Encode each segment individually (slashes are added between segments)
-                $encodedSegments += [System.Uri]::EscapeDataString($seg)
-            }
+            $encodedSegments += [System.Uri]::EscapeDataString($seg)
         }
 
         $combinedPath = if ($basePath -ne '' -and $basePath -ne '/') {
@@ -188,7 +178,6 @@
         }
         $builder.Path = $combinedPath
     }
-
 
     # Handle query parameters
     if ($null -ne $Query) {
@@ -238,36 +227,25 @@
                 if ($newVal) { $combinedVal += $newVal }
                 $mergedParams[$key] = $combinedVal
             } else {
-                # If not merging duplicates, new value overwrites existing (or just adds if new)
+                # New value overwrites or adds
                 $mergedParams[$key] = $newQueryParams[$key]
             }
         }
 
-        # Convert merged hashtable to query string
-        $finalQueryString = ConvertTo-UriQueryString -Query $mergedParams -NoEncoding:$NoEncoding
-        $builder.Query = $finalQueryString  # UriBuilder will prepend '?' automatically as needed
-    } else {
-        # If no new Query provided, but base URI had a query, ensure it's correctly encoded if NoEncoding is false.
-        # (UriBuilder.Query should have the base query already, and it is already encoded by System.Uri on BaseUriObj creation)
-        if ($NoEncoding) {
-            # If NoEncoding, we take the base query as-is (UriBuilder would have percent-encoded it already if base was string).
-            # Optionally, user might expect to keep percent-encoding from base even if NoEncoding is set.
-            # We'll leave it untouched.
-        }
+        # Convert merged hashtable to query string (always encoding)
+        $finalQueryString = ConvertTo-UriQueryString -Query $mergedParams
+        $builder.Query = $finalQueryString  # UriBuilder handles the '?' automatically
     }
 
     # Handle fragment
     if ($PSBoundParameters.ContainsKey('Fragment')) {
-        # If Fragment is explicitly provided (even if empty string)
         if ([string]::IsNullOrEmpty($Fragment)) {
-            # Empty fragment means remove any existing fragment
-            $builder.Fragment = ''  # setting to empty string effectively removes fragment
+            $builder.Fragment = ''  # remove any existing fragment
         } else {
-            $builder.Fragment = $NoEncoding ? ($Fragment -replace '^#', '')
-            : [System.Uri]::EscapeDataString(($Fragment -replace '^#', ''))
+            $builder.Fragment = [System.Uri]::EscapeDataString(($Fragment -replace '^#', ''))
         }
     }
-    # (If fragment not provided, any fragment in base URI stays as is in builder.Fragment)
+    # (If fragment not provided, any fragment in base URI stays as is)
 
     # Output based on switches
     switch ($PSCmdlet.ParameterSetName) {

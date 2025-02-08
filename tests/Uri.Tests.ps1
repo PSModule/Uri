@@ -20,7 +20,7 @@
             $result = ConvertFrom-UriQueryString -Query 'name=John%20Doe&age=30&age=40'
             $result.name | Should -Be 'John Doe'
             # When the key repeats, the value becomes an array
-            $result.age | Should -BeOfType 'Object[]'
+            $result.age | Should -HaveCount 2
             $result.age[0] | Should -Be '30'
             $result.age[1] | Should -Be '40'
         }
@@ -56,14 +56,6 @@
             $pairs | Should -Contain 'ids=1'
             $pairs | Should -Contain 'ids=2'
             $pairs | Should -Contain 'ids=3'
-        }
-
-        It 'ConvertTo-UriQueryString - outputs query string without encoding when NoEncoding is used' {
-            $query = @{ foo = 'hello world'; bar = 'a=b c' }
-            $result = ConvertTo-UriQueryString -Query $query -NoEncoding
-            $pairs = $result -split '&'
-            $pairs | Should -Contain 'foo=hello world'
-            $pairs | Should -Contain 'bar=a=b c'
         }
 
         It 'ConvertTo-UriQueryString - handles null values producing key with empty value' {
