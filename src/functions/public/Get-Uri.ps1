@@ -50,7 +50,7 @@
     [OutputType(ParameterSetName = 'String', [string])]
     [OutputType(ParameterSetName = 'AsUri', [System.Uri])]
     [CmdletBinding(DefaultParameterSetName = 'AsUri')]
-    Param(
+    param(
         # The string representation of the URI to be processed.
         [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
         [string] $Uri,
