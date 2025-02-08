@@ -81,7 +81,6 @@
         string
 
         .NOTES
-        - This function ensures URL encoding unless `-NoEncoding` is used.
         - Merging query parameters allows keeping multiple values for the same key.
 
         .LINK

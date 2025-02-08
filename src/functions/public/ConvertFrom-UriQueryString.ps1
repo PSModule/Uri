@@ -70,26 +70,25 @@
     foreach ($pair in $pairs) {
         if ([string]::IsNullOrWhiteSpace($pair)) { continue }  # skip empty segments (e.g. "&&")
 
-        $key, $val = $pair.Split('=', 2)  # split into two parts at first '='
+        $key, $value = $pair.Split('=', 2)  # split into two parts at first '='
         $key = [System.Uri]::UnescapeDataString($key)
-        if ($null -ne $val) {
-            $val = [System.Uri]::UnescapeDataString($val)
+        if ($null -ne $value) {
+            $value = [System.Uri]::UnescapeDataString($value)
         } else {
-            $val = ''  # if no '=' present, treat value as empty string
+            $value = ''  # if no '=' present, treat value as empty string
         }
 
         if ($result.Contains($key)) {
             # If key already exists, convert value to array or add to existing array
-            if ($result[$key] -is [System.Collections.IEnumerable] -and
-                $result[$key] -isnot [string]) {
+            if ($result[$key] -is [System.Collections.IEnumerable] -and $result[$key] -isnot [string]) {
                 # If already an array or collection, just add
-                $result[$key] += $val
+                $result[$key] += $value
             } else {
                 # If a single value exists, turn it into an array
-                $result[$key] = @($result[$key], $val)
+                $result[$key] = @($result[$key], $value)
             }
         } else {
-            $result[$key] = $val
+            $result[$key] = $value
         }
     }
     return $result
