@@ -200,7 +200,10 @@ Describe 'Get-Uri' {
 
     Context 'Edge Cases' {
         It 'Should throw with relative URIs' {
-            { Get-Uri -Uri '/path/to/resource' } | Should -Throw
+            {
+                $test = Get-Uri -Uri '/path/to/resource'
+                $test | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+            } | Should -Throw
         }
 
         It 'Should handle URIs with ports' {
