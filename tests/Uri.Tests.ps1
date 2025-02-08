@@ -218,14 +218,14 @@ Describe 'Get-Uri' {
         It 'Should handle URIs with multiple query strings' {
             $result = Get-Uri -Uri 'https://example.com?query=test&sort=asc&page=1'
             $result | Should -BeOfType 'System.Uri'
-            $result.Query | Should -Be '?query=test'
+            $result.Query | Should -Be '?query=test&sort=asc&page=1'
         }
 
         It 'Should handle URIs with query strings and fragments' {
             $result = Get-Uri -Uri 'https://example.com?query=test#section1'
             $result | Should -BeOfType 'System.Uri'
             $result.Query | Should -Be '?query=test'
-            $result.Fragment | Should -Be 'section1'
+            $result.Fragment | Should -Be '#section1'
         }
 
         # Uri + same key query string and fragment
@@ -233,13 +233,13 @@ Describe 'Get-Uri' {
             $result = Get-Uri -Uri 'https://example.com?include=test&include=dev&include=prod#section1'
             $result | Should -BeOfType 'System.Uri'
             $result.Query | Should -Be '?include=test&include=dev&include=prod'
-            $result.Fragment | Should -Be 'section1'
+            $result.Fragment | Should -Be '#section1'
         }
 
         It 'Should handle URIs with fragments' {
             $result = Get-Uri -Uri 'https://example.com#section1'
             $result | Should -BeOfType 'System.Uri'
-            $result.Fragment | Should -Be 'section1'
+            $result.Fragment | Should -Be '#section1'
         }
 
         It 'Should handle IPv6 addresses' {
