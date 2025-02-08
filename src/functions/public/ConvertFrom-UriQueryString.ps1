@@ -44,23 +44,29 @@
     param(
         # The query string to parse. This can include the leading '?' or just the key-value pairs.
         # For example, both "?foo=bar&count=10" and "foo=bar&count=10" are acceptable.
-        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
+        [Parameter(Position = 0, ValueFromPipeline)]
+        [AllowNull()]
         [string] $Query
     )
 
+    # Early exit if $Query is null or empty.
+    if ([string]::IsNullOrEmpty($Query)) {
+        Write-Verbose 'Query string is null or empty.'
+        return @{}
+    }
+
     Write-Verbose "Parsing query string: $Query"
     # Remove leading '?' if present
-    $query = $Query
-    if ($query.StartsWith('?')) {
-        $query = $query.Substring(1)
+    if ($Query.StartsWith('?')) {
+        $Query = $Query.Substring(1)
     }
-    if ([string]::IsNullOrEmpty($query)) {
+    if ([string]::IsNullOrEmpty($Query)) {
         return @{}  # return empty hashtable if no query present
     }
 
     $result = @{}
     # Split by '&' to get each key=value pair
-    $pairs = $query.Split('&')
+    $pairs = $Query.Split('&')
     foreach ($pair in $pairs) {
         if ([string]::IsNullOrWhiteSpace($pair)) { continue }  # skip empty segments (e.g. "&&")
 
