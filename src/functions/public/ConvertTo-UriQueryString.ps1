@@ -48,10 +48,10 @@
         [switch] $NoEncoding
     )
 
-    Write-Verbose "Converting hashtable to query string"
+    Write-Verbose 'Converting hashtable to query string'
     Write-Verbose "NoEncoding: $NoEncoding"
     Write-Verbose "Query: $($Query | Out-String)"
-    
+
     # Build the query string by iterating through each key-value pair
     $pairs = @()
     foreach ($key in $Query.Keys) {

@@ -66,7 +66,7 @@
 
         $key, $val = $pair.Split('=', 2)  # split into two parts at first '='
         $key = [System.Uri]::UnescapeDataString($key)
-        if ($val -ne $null) {
+        if ($null -ne $val) {
             $val = [System.Uri]::UnescapeDataString($val)
         } else {
             $val = ''  # if no '=' present, treat value as empty string

@@ -58,10 +58,15 @@
         .LINK
         https://psmodule.io/Uri/Functions/New-Uri
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        'PSUseShouldProcessForStateChangingFunctions', '',
+        Scope = 'Function',
+        Justification = 'Creates a new URI object without changing state'
+    )]
     [OutputType(ParameterSetName = 'AsString', [string])]
     [OutputType(ParameterSetName = 'AsUri', [System.Uri])]
     [OutputType(ParameterSetName = 'AsUriBuilder', [System.UriBuilder])]
-    [CmdletBinding(DefaultParameterSetName = 'AsString')]
+    [CmdletBinding(DefaultParameterSetName = 'AsUri')]
     param(
         # The base URI (string or [System.Uri]) to start from.
         [Parameter(Mandatory, Position = 0)]
@@ -245,7 +250,7 @@
         'AsUri' {
             return $builder.Uri
         }
-        default {
+        'AsString' {
             $uriString = "$($builder.Scheme)://$($builder.Host)$($builder.Uri.PathAndQuery)"
             if ($builder.Fragment) { $uriString += "$($builder.Fragment)" -replace '(%20| )', '-' }
             return $uriString
