@@ -1,69 +1,111 @@
-# {{ NAME }}
+# URI
 
-{{ DESCRIPTION }}
+URI is a PowerShell module that provides robust functions for parsing, constructing, and manipulating URIs. It offers easy-to-use commands to:
+
+- Parse URL query strings into hashtables.
+- Convert hashtables (or dictionaries) into properly URL-encoded query strings.
+- Build complete URIs from base addresses, path segments, query parameters, and fragments—with automatic handling of URL encoding per [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986).
 
 ## Prerequisites
 
-This uses the following external resources:
-- The [PSModule framework](https://github.com/PSModule) for building, testing and publishing the module.
+This module uses the following external resources:
+- The [PSModule framework](https://github.com/PSModule) for building, testing, and publishing the module.
 
 ## Installation
 
-To install the module from the PowerShell Gallery, you can use the following command:
+To install the module from the PowerShell Gallery, run the following commands:
 
 ```powershell
-Install-PSResource -Name {{ NAME }}
-Import-Module -Name {{ NAME }}
+Install-PSResource -Name Uri
+Import-Module -Name Uri
 ```
 
 ## Usage
 
-Here is a list of example that are typical use cases for the module.
+The **URI** module includes several functions to work with URIs. Below are common use cases and examples:
 
-### Example 1: Greet an entity
+### 1. Parsing a Query String
 
-Provide examples for typical commands that a user would like to do with the module.
-
-```powershell
-Greet-Entity -Name 'World'
-Hello, World!
-```
-
-### Example 2
-
-Provide examples for typical commands that a user would like to do with the module.
+Use `ConvertFrom-UriQueryString` to convert a URL query string into a hashtable of parameters. This function decodes percent-encoded characters and handles duplicate keys by returning an array of values.
 
 ```powershell
-Import-Module -Name PSModuleTemplate
+# Example: Parsing a query string with multiple values for the same key.
+$parsed = ConvertFrom-UriQueryString -Query 'name=John%20Doe&age=30&age=40'
+$parsed
 ```
 
-### Find more examples
+Expected Output:
 
-To find more examples of how to use the module, please refer to the [examples](examples) folder.
+```powershell
+Name                           Value
+----                           -----
+name                           John Doe
+age                            {30, 40}
+```
 
-Alternatively, you can use the Get-Command -Module 'This module' to find more commands that are available in the module.
-To find examples of each of the commands you can use Get-Help -Examples 'CommandName'.
+### 2. Constructing a Query String
+
+Use `ConvertTo-UriQueryString` to convert a hashtable (or dictionary) of parameters into a URL-encoded query string. If a value is an array, multiple key-value pairs will be generated.
+
+```powershell
+# Example: Converting a hashtable of parameters into a query string.
+$queryString = ConvertTo-UriQueryString -Query @{ foo = 'bar'; search = 'hello world'; ids = 1,2,3 }
+$queryString
+```
+
+Expected Output:
+
+```powershell
+foo=bar&search=hello%20world&ids=1&ids=2&ids=3
+```
+
+### 3. Building a Complete URI
+
+Use `New-Uri` to construct a URI by combining a base URI with optional path segments, query parameters, and a fragment.
+
+```powershell
+# Example 1: Building a URI with a base and a path.
+$uri = New-Uri -BaseUri 'https://example.com' -Path 'products/item'
+$uri
+```
+
+Expected Output (as a `[System.Uri]` object):
+
+```powershell
+AbsoluteUri : https://example.com/products/item
+...
+```
+
+```powershell
+# Example 2: Constructing a URI while merging existing query parameters.
+$uriString = New-Uri 'https://example.com/data?year=2023' -Query @{ year = 2024; sort = 'asc' } -MergeQueryParameters -AsString
+$uriString
+```
+
+Expected Output:
+
+```powershell
+https://example.com/data?sort=asc&year=2023&year=2024
+```
 
 ## Documentation
 
-Link to further documentation if available, or describe where in the repository users can find more detailed documentation about
-the module's functions and features.
+For more detailed documentation about each function and additional examples, please refer to the [documentation](docs) folder in the repository or view the detailed help in PowerShell:
+
+```powershell
+Get-Help ConvertFrom-UriQueryString -Detailed
+Get-Help ConvertTo-UriQueryString -Detailed
+Get-Help New-Uri -Detailed
+```
 
 ## Contributing
 
-Coder or not, you can contribute to the project! We welcome all contributions.
+Contributions are welcome—whether you're a user or a developer!
 
 ### For Users
 
-If you don't code, you still sit on valuable information that can make this project even better. If you experience that the
-product does unexpected things, throw errors or is missing functionality, you can help by submitting bugs and feature requests.
-Please see the issues tab on this project and submit a new issue that matches your needs.
+If you encounter issues, unexpected behavior, or have feature requests, please submit a new issue via the repository's Issues tab.
 
 ### For Developers
 
-If you do code, we'd love to have your contributions. Please read the [Contribution guidelines](CONTRIBUTING.md) for more information.
-You can either help by picking up an existing issue or submit a new one if you have an idea for a new feature or improvement.
-
-## Acknowledgements
-
-Here is a list of people and projects that helped this project in some way.
+We appreciate your help in making this module even better. Please review our [Contribution Guidelines](CONTRIBUTING.md) before submitting pull requests. You can start by picking up an existing issue or proposing new features or improvements.
