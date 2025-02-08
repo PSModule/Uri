@@ -95,9 +95,9 @@
         [Parameter()]
         [switch] $NoEncoding,
 
-        # Outputs the resulting URI as a System.Uri object.
-        [Parameter(Mandatory, ParameterSetName = 'AsUri')]
-        [switch] $AsUri,
+        # Outputs the resulting URI as a string.
+        [Parameter(Mandatory, ParameterSetName = 'AsString')]
+        [switch] $AsString,
 
         # Outputs the resulting URI as a System.UriBuilder object.
         [Parameter(Mandatory, ParameterSetName = 'AsUriBuilder')]
