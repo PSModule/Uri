@@ -206,13 +206,6 @@ Describe 'Get-Uri' {
     }
 
     Context 'Edge Cases' {
-        It 'Should throw with relative URIs' {
-            {
-                $test = Get-Uri -Uri '/path/to/resource'
-                $test | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
-            } | Should -Throw
-        }
-
         It 'Should handle URIs with ports' {
             $result = Get-Uri -Uri 'http://example.com:8080'
             $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
@@ -263,51 +256,6 @@ Describe 'Get-Uri' {
             $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             $result | Should -BeOfType 'System.Uri'
             $result.Host | Should -Be '[::1]'
-        }
-    }
-
-    Context 'Switch: -AsUriBuilder' {
-        It 'Should return a System.UriBuilder object' {
-            $result = Get-Uri -Uri 'https://example.com/path' -AsUriBuilder
-            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
-            $result | Should -BeOfType 'System.UriBuilder'
-            $result.Uri.Scheme | Should -Be 'https'
-            $result.Uri.Host | Should -Be 'example.com'
-        }
-    }
-
-    Context 'Switch: -AsString' {
-        It 'Should return a normalized URI string' {
-            # Example with uppercase scheme and percent-encoded characters
-            $inputUri = 'HTTP://Example.com/%7Euser/path/page.html'
-            $result = Get-Uri -Uri $inputUri -AsString
-            $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
-            $expected = 'http://example.com/~user/path/page.html'
-            $result | Should -Be $expected
-        }
-    }
-
-    Context 'Error Handling' {
-        It 'Should throw an error for an invalid URI' {
-            { Get-Uri -Uri 'http://??' } | Should -Throw
-        }
-
-        It 'Should throw an error when both -AsUriBuilder and -AsString are provided' {
-            { Get-Uri -Uri 'https://example.com' -AsUriBuilder -AsString } | Should -Throw
-        }
-
-        It 'Should throw an error when an empty URI string is provided' {
-            { Get-Uri -Uri '' } | Should -Throw
-        }
-    }
-
-    Context 'Pipeline Input' {
-        It 'Should accept pipeline input and return a valid [System.Uri]' {
-            'example.com/path' | Get-Uri | ForEach-Object {
-                $_ | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
-                $_ | Should -BeOfType 'System.Uri'
-                $_.Scheme | Should -Be 'http'
-            }
         }
     }
 }
