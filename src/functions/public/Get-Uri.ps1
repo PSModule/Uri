@@ -119,29 +119,15 @@
             }
         }
 
-        if ($uriObject.IsAbsoluteUri) {
-            switch ($PSCmdlet.ParameterSetName) {
-                'AsUriBuilder' {
-                    return ([System.UriBuilder]::new($uriObject))
-                }
-                'AsString' {
-                    return ($uriObject.GetComponents([System.UriComponents]::AbsoluteUri, [System.UriFormat]::SafeUnescaped))
-                }
-                'AsUri' {
-                    return $uriObject
-                }
+        switch ($PSCmdlet.ParameterSetName) {
+            'AsUriBuilder' {
+                return ([System.UriBuilder]::new($uriObject))
             }
-        } else {
-            switch ($PSCmdlet.ParameterSetName) {
-                'AsUriBuilder' {
-                    throw 'Cannot convert a relative URI to a UriBuilder. Please supply an absolute URI.'
-                }
-                'AsString' {
-                    return $uriObject.OriginalString
-                }
-                'AsUri' {
-                    return $uriObject
-                }
+            'AsString' {
+                return ($uriObject.GetComponents([System.UriComponents]::AbsoluteUri, [System.UriFormat]::SafeUnescaped))
+            }
+            'AsUri' {
+                return $uriObject
             }
         }
     }

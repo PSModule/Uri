@@ -111,7 +111,7 @@
             @{ URI = 'https://example.com/has|pipe'; Expected = 'Invalid' }
         )
 
-        It '<URI> is <Valid>' -ForEach $testUris {
+        It '<URI> is <Expected>' -ForEach $testUris {
             $result = $URI | Test-Uri
             switch ($Expected) {
                 'Valid' { $Valid = $true }
