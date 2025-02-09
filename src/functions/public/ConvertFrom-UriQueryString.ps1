@@ -44,7 +44,7 @@
     param(
         # The query string to parse. This can include the leading '?' or just the key-value pairs.
         # For example, both "?foo=bar&count=10" and "foo=bar&count=10" are acceptable.
-        [Parameter(Position = 0, ValueFromPipeline)]
+        [Parameter(ValueFromPipeline)]
         [AllowNull()]
         [string] $Query
     )
@@ -59,7 +59,6 @@
     if ($Query.StartsWith('?')) {
         $Query = $Query.Substring(1)
     }
-
 
     $result = @{}
     # Split by '&' to get each key=value pair

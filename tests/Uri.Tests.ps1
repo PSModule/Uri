@@ -114,11 +114,16 @@
         It '<URI> is <Expected>' -ForEach $testUris {
             $result = $URI | Test-Uri
             switch ($Expected) {
-                'Valid' { $Valid = $true }
-                'Invalid' { $Valid = $false }
+                'Valid' {
+                    $Valid = $true
+                    $URI | Get-Uri | Should -Not -BeNullOrEmpty
+                }
+                'Invalid' {
+                    $Valid = $false
+                }
             }
             if ($result) {
-                $URI | Get-Uti | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $URI | Get-Uri | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             }
             $result | Should -BeExactly $Valid
         }
