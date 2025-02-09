@@ -86,41 +86,39 @@
             @{ URI = 'http://user:pass@example.com:8080/path?query=test#fragment'; Expected = 'Valid' },
             @{ URI = 'ws://websocket.example.com/socket'; Expected = 'Valid' },
             @{ URI = 'wss://secure-websocket.com/path'; Expected = 'Valid' },
+            @{ URI = 'htp://example.com'; Expected = 'Valid' },
+            @{ URI = 'http://example.com/ space in path'; Expected = 'Valid' },
+            @{ URI = "http://example.com/<>#{}|\^~[]``"; Expected = 'Valid' },
+            @{ URI = 'http://example.com/%%invalid-encoding'; Expected = 'Valid' },
+            @{ URI = 'http://example.com/path?query=%%invalid'; Expected = 'Valid' },
+            @{ URI = 'http://-invalid-host.com'; Expected = 'Valid' },
+            @{ URI = 'https://:invalid@hostname'; Expected = 'Valid' },
+            @{ URI = 'ftp://missing/slash'; Expected = 'Valid' },
+            @{ URI = 'http://incomplete-path?query='; Expected = 'Valid' },
+            @{ URI = 'https://example.com/has|pipe'; Expected = 'Valid' }
 
             # Invalid URIs
             @{ URI = 'http:///missing-host'; Expected = 'Invalid' },
-            @{ URI = 'htp://example.com'; Expected = 'Invalid' },
             @{ URI = 'https:// example .com'; Expected = 'Invalid' },
             @{ URI = 'https://example.com:99999'; Expected = 'Invalid' },
             @{ URI = 'http://exa mple.com'; Expected = 'Invalid' },
-            @{ URI = 'http://example.com/ space in path'; Expected = 'Invalid' },
-            @{ URI = "http://example.com/<>#{}|\^~[]``"; Expected = 'Invalid' },
             @{ URI = 'http://:8080/missing-host'; Expected = 'Invalid' },
-            @{ URI = 'http://example.com/%%invalid-encoding'; Expected = 'Invalid' },
-            @{ URI = 'http://example.com/path?query=%%invalid'; Expected = 'Invalid' },
-            @{ URI = 'http://-invalid-host.com'; Expected = 'Invalid' },
-            @{ URI = 'https://:invalid@hostname'; Expected = 'Invalid' },
-            @{ URI = 'ftp://missing/slash'; Expected = 'Invalid' },
             @{ URI = 'https://example.com:abcd'; Expected = 'Invalid' },
             @{ URI = 'https://ex ample.com/path'; Expected = 'Invalid' },
-            @{ URI = 'http://incomplete-path?query='; Expected = 'Invalid' },
             @{ URI = 'http://::1/invalid-ipv6'; Expected = 'Invalid' },
             @{ URI = 'https://double..dots.com'; Expected = 'Invalid' },
             @{ URI = 'http://username:password@'; Expected = 'Invalid' },
-            @{ URI = 'ws://invalid:websocket'; Expected = 'Invalid' },
-            @{ URI = 'https://example.com/has|pipe'; Expected = 'Invalid' }
+            @{ URI = 'ws://invalid:websocket'; Expected = 'Invalid' }
         )
 
-        It '<URI> is <Expected>' -ForEach $testUris {
+        It 'Test-Uri - Deems [<URI>] a [<Expected>] URI' -ForEach $testUris {
             $result = $URI | Test-Uri
             switch ($Expected) {
                 'Valid' {
                     $Valid = $true
                     $URI | Get-Uri | Should -Not -BeNullOrEmpty
                 }
-                'Invalid' {
-                    $Valid = $false
-                }
+                'Invalid' { $Valid = $false }
             }
             if ($result) {
                 $URI | Get-Uri | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
