@@ -15,7 +15,28 @@
 
         Output:
         ```powershell
-        http://example.com/
+        AbsolutePath   : /
+        AbsoluteUri    : http://example.com/
+        LocalPath      : /
+        Authority      : example.com
+        HostNameType   : Dns
+        IsDefaultPort  : True
+        IsFile         : False
+        IsLoopback     : False
+        PathAndQuery   : /
+        Segments       : {/}
+        IsUnc          : False
+        Host           : example.com
+        Port           : 80
+        Query          :
+        Fragment       :
+        Scheme         : http
+        OriginalString : http://example.com
+        DnsSafeHost    : example.com
+        IdnHost        : example.com
+        IsAbsoluteUri  : True
+        UserEscaped    : False
+        UserInfo       :
         ```
 
         Converts 'example.com' into a normalized absolute URI string.
@@ -25,27 +46,28 @@
 
         Output:
         ```powershell
-        Host    : example.com
-        Scheme  : https
-        Path    : /path
+        Scheme   : https
+        UserName :
+        Password :
+        Host     : example.com
+        Port     : 443
+        Path     : /path
+        Query    :
+        Fragment :
+        Uri      : https://example.com/path
         ```
 
         Returns a [System.UriBuilder] object for the specified URI.
 
         .EXAMPLE
-        Get-Uri -Uri 'https://example.com/path' -AsUri
+        'example.com/path' | Get-Uri -AsString
 
         Output:
         ```powershell
-        AbsoluteUri : https://example.com/path
+        http://example.com/path
         ```
 
-        Returns a [System.Uri] object with the full absolute URI.
-
-        .EXAMPLE
-        Get-Uri -Uri '/path/to/resource'
-
-        Returns a relative URI (with no hostname).
+        Returns a [string] with the full absolute URI.
 
         .LINK
         https://psmodule.io/Uri/Functions/Get-Uri
@@ -86,7 +108,7 @@
 
         # Attempt to create a System.Uri (absolute) from the string
         $uriObject = $null
-        $success = [System.Uri]::TryCreate($inputString, [System.UriKind]::RelativeOrAbsolute, [ref]$uriObject)
+        $success = [System.Uri]::TryCreate($inputString, [System.UriKind]::Absolute, [ref]$uriObject)
         if (-not $success) {
             # If no scheme present, try adding "http://"
             if ($inputString -notmatch '^[A-Za-z][A-Za-z0-9+.-]*:') {
