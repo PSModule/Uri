@@ -68,51 +68,55 @@
     Context 'Function: Test-Uri' {
         $testUris = @(
             # Valid URIs
-            @{ URI = 'http://example.com'; Valid = $true },
-            @{ URI = 'https://sub.domain.com/path/to/resource'; Valid = $true },
-            @{ URI = 'ftp://ftp.example.org/file.txt'; Valid = $true },
-            @{ URI = 'http://example.com:8080/index.html'; Valid = $true },
-            @{ URI = 'https://example.com/path/to/resource?query=123&another=test'; Valid = $true },
-            @{ URI = 'https://example.com/path?encoded=%20%3C%3E%23%25'; Valid = $true },
-            @{ URI = 'http://example.com/path#section1'; Valid = $true },
-            @{ URI = 'mailto:user@example.com'; Valid = $true },
-            @{ URI = 'tel:+1234567890'; Valid = $true },
-            @{ URI = 'urn:isbn:0451450523'; Valid = $true },
-            @{ URI = 'https://valid-url.com/resource?param=value&other=123'; Valid = $true },
-            @{ URI = 'http://localhost:3000/api/test'; Valid = $true },
-            @{ URI = 'http://192.168.1.1:8080/dashboard'; Valid = $true },
-            @{ URI = 'https://secure-site.org/login?user=admin'; Valid = $true },
-            @{ URI = 'https://example.com/valid/path/with/multiple/segments'; Valid = $true },
-            @{ URI = 'http://user:pass@example.com:8080/path?query=test#fragment'; Valid = $true },
-            @{ URI = 'ws://websocket.example.com/socket'; Valid = $true },
-            @{ URI = 'wss://secure-websocket.com/path'; Valid = $true },
+            @{ URI = 'http://example.com'; Expected = 'Valid' },
+            @{ URI = 'https://sub.domain.com/path/to/resource'; Expected = 'Valid' },
+            @{ URI = 'ftp://ftp.example.org/file.txt'; Expected = 'Valid' },
+            @{ URI = 'http://example.com:8080/index.html'; Expected = 'Valid' },
+            @{ URI = 'https://example.com/path/to/resource?query=123&another=test'; Expected = 'Valid' },
+            @{ URI = 'https://example.com/path?encoded=%20%3C%3E%23%25'; Expected = 'Valid' },
+            @{ URI = 'http://example.com/path#section1'; Expected = 'Valid' },
+            @{ URI = 'mailto:user@example.com'; Expected = 'Valid' },
+            @{ URI = 'tel:+1234567890'; Expected = 'Valid' },
+            @{ URI = 'urn:isbn:0451450523'; Expected = 'Valid' },
+            @{ URI = 'https://valid-url.com/resource?param=value&other=123'; Expected = 'Valid' },
+            @{ URI = 'http://localhost:3000/api/test'; Expected = 'Valid' },
+            @{ URI = 'http://192.168.1.1:8080/dashboard'; Expected = 'Valid' },
+            @{ URI = 'https://secure-site.org/login?user=admin'; Expected = 'Valid' },
+            @{ URI = 'https://example.com/valid/path/with/multiple/segments'; Expected = 'Valid' },
+            @{ URI = 'http://user:pass@example.com:8080/path?query=test#fragment'; Expected = 'Valid' },
+            @{ URI = 'ws://websocket.example.com/socket'; Expected = 'Valid' },
+            @{ URI = 'wss://secure-websocket.com/path'; Expected = 'Valid' },
 
             # Invalid URIs
-            @{ URI = 'http:///missing-host'; Valid = $false },
-            @{ URI = 'htp://example.com'; Valid = $false },
-            @{ URI = 'https:// example .com'; Valid = $false },
-            @{ URI = 'https://example.com:99999'; Valid = $false },
-            @{ URI = 'http://exa mple.com'; Valid = $false },
-            @{ URI = 'http://example.com/ space in path'; Valid = $false },
-            @{ URI = "http://example.com/<>#{}|\^~[]``"; Valid = $false },
-            @{ URI = 'http://:8080/missing-host'; Valid = $false },
-            @{ URI = 'http://example.com/%%invalid-encoding'; Valid = $false },
-            @{ URI = 'http://example.com/path?query=%%invalid'; Valid = $false },
-            @{ URI = 'http://-invalid-host.com'; Valid = $false },
-            @{ URI = 'https://:invalid@hostname'; Valid = $false },
-            @{ URI = 'ftp://missing/slash'; Valid = $false },
-            @{ URI = 'https://example.com:abcd'; Valid = $false },
-            @{ URI = 'https://ex ample.com/path'; Valid = $false },
-            @{ URI = 'http://incomplete-path?query='; Valid = $false },
-            @{ URI = 'http://::1/invalid-ipv6'; Valid = $false },
-            @{ URI = 'https://double..dots.com'; Valid = $false },
-            @{ URI = 'http://username:password@'; Valid = $false },
-            @{ URI = 'ws://invalid:websocket'; Valid = $false },
-            @{ URI = 'https://example.com/has|pipe'; Valid = $false }
+            @{ URI = 'http:///missing-host'; Expected = 'Invalid' },
+            @{ URI = 'htp://example.com'; Expected = 'Invalid' },
+            @{ URI = 'https:// example .com'; Expected = 'Invalid' },
+            @{ URI = 'https://example.com:99999'; Expected = 'Invalid' },
+            @{ URI = 'http://exa mple.com'; Expected = 'Invalid' },
+            @{ URI = 'http://example.com/ space in path'; Expected = 'Invalid' },
+            @{ URI = "http://example.com/<>#{}|\^~[]``"; Expected = 'Invalid' },
+            @{ URI = 'http://:8080/missing-host'; Expected = 'Invalid' },
+            @{ URI = 'http://example.com/%%invalid-encoding'; Expected = 'Invalid' },
+            @{ URI = 'http://example.com/path?query=%%invalid'; Expected = 'Invalid' },
+            @{ URI = 'http://-invalid-host.com'; Expected = 'Invalid' },
+            @{ URI = 'https://:invalid@hostname'; Expected = 'Invalid' },
+            @{ URI = 'ftp://missing/slash'; Expected = 'Invalid' },
+            @{ URI = 'https://example.com:abcd'; Expected = 'Invalid' },
+            @{ URI = 'https://ex ample.com/path'; Expected = 'Invalid' },
+            @{ URI = 'http://incomplete-path?query='; Expected = 'Invalid' },
+            @{ URI = 'http://::1/invalid-ipv6'; Expected = 'Invalid' },
+            @{ URI = 'https://double..dots.com'; Expected = 'Invalid' },
+            @{ URI = 'http://username:password@'; Expected = 'Invalid' },
+            @{ URI = 'ws://invalid:websocket'; Expected = 'Invalid' },
+            @{ URI = 'https://example.com/has|pipe'; Expected = 'Invalid' }
         )
 
-        It '<URI> valid <Valid>' -ForEach $testUris {
+        It '<URI> is <Valid>' -ForEach $testUris {
             $result = $URI | Test-Uri
+            switch ($Expected) {
+                'Valid' { $Valid = $true }
+                'Invalid' { $Valid = $false }
+            }
             $result | Should -BeExactly $Valid
         }
     }

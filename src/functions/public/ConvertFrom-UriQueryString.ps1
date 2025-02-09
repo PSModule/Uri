@@ -11,7 +11,7 @@
         back to their normal representation.
 
         .EXAMPLE
-        ConvertFrom-UriQueryString -QueryString 'name=John%20Doe&age=30&age=40'
+        ConvertFrom-UriQueryString -Query 'name=John%20Doe&age=30&age=40'
 
         Output:
         ```powershell
@@ -25,7 +25,7 @@
         values are decoded parameter values.
 
         .EXAMPLE
-        ConvertFrom-UriQueryString '?q=PowerShell%20URI'
+        '?q=PowerShell%20URI' | ConvertFrom-UriQueryString
 
         Output:
         ```powershell
@@ -49,7 +49,6 @@
         [string] $Query
     )
 
-    # Early exit if $Query is null or empty.
     if ([string]::IsNullOrEmpty($Query)) {
         Write-Verbose 'Query string is null or empty.'
         return @{}
@@ -60,9 +59,7 @@
     if ($Query.StartsWith('?')) {
         $Query = $Query.Substring(1)
     }
-    if ([string]::IsNullOrEmpty($Query)) {
-        return @{}  # return empty hashtable if no query present
-    }
+
 
     $result = @{}
     # Split by '&' to get each key=value pair
