@@ -1,5 +1,4 @@
 ﻿Describe 'Uri' {
-
     Context 'Function: ConvertFrom-UriQueryString' {
 
         It 'ConvertFrom-UriQueryString - returns empty hashtable for empty input' {
@@ -27,8 +26,9 @@
 
         It 'ConvertFrom-UriQueryString - removes leading question mark if present' {
             $result1 = ConvertFrom-UriQueryString -Query '?foo=bar'
-            $result2 = ConvertFrom-UriQueryString -Query 'foo=bar'
             $result1.foo | Should -Be 'bar'
+
+            $result2 = ConvertFrom-UriQueryString -Query 'foo=bar'
             $result2.foo | Should -Be 'bar'
         }
 
@@ -62,6 +62,68 @@
             $query = @{ foo = $null }
             $result = ConvertTo-UriQueryString -Query $query
             $result | Should -Be 'foo='
+        }
+    }
+
+    Context 'Function: Test-Uri' {
+        $testUris = @(
+            # Valid URIs
+            @{ URI = 'http://example.com'; Expected = 'Valid' },
+            @{ URI = 'https://sub.domain.com/path/to/resource'; Expected = 'Valid' },
+            @{ URI = 'ftp://ftp.example.org/file.txt'; Expected = 'Valid' },
+            @{ URI = 'http://example.com:8080/index.html'; Expected = 'Valid' },
+            @{ URI = 'https://example.com/path/to/resource?query=123&another=test'; Expected = 'Valid' },
+            @{ URI = 'https://example.com/path?encoded=%20%3C%3E%23%25'; Expected = 'Valid' },
+            @{ URI = 'http://example.com/path#section1'; Expected = 'Valid' },
+            @{ URI = 'mailto:user@example.com'; Expected = 'Valid' },
+            @{ URI = 'tel:+1234567890'; Expected = 'Valid' },
+            @{ URI = 'urn:isbn:0451450523'; Expected = 'Valid' },
+            @{ URI = 'https://valid-url.com/resource?param=value&other=123'; Expected = 'Valid' },
+            @{ URI = 'http://localhost:3000/api/test'; Expected = 'Valid' },
+            @{ URI = 'http://192.168.1.1:8080/dashboard'; Expected = 'Valid' },
+            @{ URI = 'https://secure-site.org/login?user=admin'; Expected = 'Valid' },
+            @{ URI = 'https://example.com/valid/path/with/multiple/segments'; Expected = 'Valid' },
+            @{ URI = 'http://user:pass@example.com:8080/path?query=test#fragment'; Expected = 'Valid' },
+            @{ URI = 'ws://websocket.example.com/socket'; Expected = 'Valid' },
+            @{ URI = 'wss://secure-websocket.com/path'; Expected = 'Valid' },
+            @{ URI = 'htp://example.com'; Expected = 'Valid' },
+            @{ URI = 'http://example.com/ space in path'; Expected = 'Valid' },
+            @{ URI = "http://example.com/<>#{}|\^~[]``"; Expected = 'Valid' },
+            @{ URI = 'http://example.com/%%invalid-encoding'; Expected = 'Valid' },
+            @{ URI = 'http://example.com/path?query=%%invalid'; Expected = 'Valid' },
+            @{ URI = 'http://-invalid-host.com'; Expected = 'Valid' },
+            @{ URI = 'https://:invalid@hostname'; Expected = 'Valid' },
+            @{ URI = 'ftp://missing/slash'; Expected = 'Valid' },
+            @{ URI = 'http://incomplete-path?query='; Expected = 'Valid' },
+            @{ URI = 'https://example.com/has|pipe'; Expected = 'Valid' }
+
+            # Invalid URIs
+            @{ URI = 'http:///missing-host'; Expected = 'Invalid' },
+            @{ URI = 'https:// example .com'; Expected = 'Invalid' },
+            @{ URI = 'https://example.com:99999'; Expected = 'Invalid' },
+            @{ URI = 'http://exa mple.com'; Expected = 'Invalid' },
+            @{ URI = 'http://:8080/missing-host'; Expected = 'Invalid' },
+            @{ URI = 'https://example.com:abcd'; Expected = 'Invalid' },
+            @{ URI = 'https://ex ample.com/path'; Expected = 'Invalid' },
+            @{ URI = 'http://::1/invalid-ipv6'; Expected = 'Invalid' },
+            @{ URI = 'https://double..dots.com'; Expected = 'Invalid' },
+            @{ URI = 'http://username:password@'; Expected = 'Invalid' },
+            @{ URI = 'ws://invalid:websocket'; Expected = 'Invalid' }
+        )
+
+        It 'Test-Uri - Deems [<URI>] a [<Expected>] URI' -ForEach $testUris {
+            $result = $URI | Test-Uri
+            switch ($Expected) {
+                'Valid' {
+                    $Valid = $true
+                    $URI | Get-Uri | Should -Not -BeNullOrEmpty
+                }
+                'Invalid' { $Valid = $false }
+            }
+            if ($result) {
+                $URI | Get-Uri | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+            }
+            $result | Should -BeExactly $Valid
         }
     }
 
@@ -115,6 +177,145 @@
             $uri = New-Uri -BaseUri 'https://example.com/api' -Path 'search' -Query '?q=hello%20world'
             $query = $uri.Query.TrimStart('?')
             $query | Should -Match 'q=hello%20world'
+        }
+    }
+
+    Context 'Function: Get-Uri' {
+        Context 'Default Behavior (returns a [System.Uri] object)' {
+            It 'Should return a valid System.Uri when given a URI with scheme' {
+                $result = Get-Uri -Uri 'https://example.com/path'
+                $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $result | Should -BeOfType 'System.Uri'
+                $result.Scheme | Should -Be 'https'
+                $result.Host | Should -Be 'example.com'
+            }
+
+            It 'Should add default scheme (http) when missing' {
+                $result = Get-Uri -Uri 'example.com/path'
+                $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $result | Should -BeOfType 'System.Uri'
+                $result.Scheme | Should -Be 'http'
+                $result.Host | Should -Be 'example.com'
+            }
+        }
+
+        Context 'Switch: -AsUriBuilder' {
+
+            It 'Should return a System.UriBuilder object' {
+                $result = Get-Uri -Uri 'https://example.com/path' -AsUriBuilder
+                $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $result | Should -BeOfType 'System.UriBuilder'
+                $result.Uri.Scheme | Should -Be 'https'
+                $result.Uri.Host | Should -Be 'example.com'
+            }
+        }
+
+        Context 'Switch: -AsString' {
+
+            It 'Should return a normalized URI string' {
+                # Example with uppercase scheme and percent-encoded characters
+                $inputUri = 'HTTP://Example.com/%7Euser/path/page.html'
+                $result = Get-Uri -Uri $inputUri -AsString
+                $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $expected = 'http://example.com/~user/path/page.html'
+                $result | Should -Be $expected
+            }
+        }
+
+        Context 'Error Handling' {
+
+            It 'Should throw an error for an invalid URI' {
+                { Get-Uri -Uri 'http://??' } | Should -Throw
+            }
+
+            It 'Should throw an error when both -AsUriBuilder and -AsString are provided' {
+                { Get-Uri -Uri 'https://example.com' -AsUriBuilder -AsString } | Should -Throw
+            }
+
+            It 'Should throw an error when an empty URI string is provided' {
+                { Get-Uri -Uri '' } | Should -Throw
+            }
+        }
+
+        Context 'Pipeline Input' {
+
+            It 'Should accept pipeline input and return a valid [System.Uri]' {
+                'example.com/path' | Get-Uri | ForEach-Object {
+                    $_ | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                    $_ | Should -BeOfType 'System.Uri'
+                    $_.Scheme | Should -Be 'http'
+                }
+            }
+
+            It 'Should return a valid System.Uri when given a URI with scheme' {
+                $result = Get-Uri -Uri 'https://example.com/path'
+                $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $result | Should -BeOfType 'System.Uri'
+                $result.Scheme | Should -Be 'https'
+                $result.Host | Should -Be 'example.com'
+            }
+
+            It 'Should add default scheme (http) when missing' {
+                $result = Get-Uri -Uri 'example.com/path'
+                $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $result | Should -BeOfType 'System.Uri'
+                $result.Scheme | Should -Be 'http'
+                $result.Host | Should -Be 'example.com'
+            }
+        }
+
+        Context 'Edge Cases' {
+            It 'Should handle URIs with ports' {
+                $result = Get-Uri -Uri 'http://example.com:8080'
+                $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $result | Should -BeOfType 'System.Uri'
+                $result.Port | Should -Be 8080
+            }
+
+            It 'Should handle URIs with query strings' {
+                $result = Get-Uri -Uri 'https://example.com?query=test'
+                $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $result | Should -BeOfType 'System.Uri'
+                $result.Query | Should -Be '?query=test'
+            }
+
+            It 'Should handle URIs with multiple query strings' {
+                $result = Get-Uri -Uri 'https://example.com?query=test&sort=asc&page=1'
+                $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $result | Should -BeOfType 'System.Uri'
+                $result.Query | Should -Be '?query=test&sort=asc&page=1'
+            }
+
+            It 'Should handle URIs with query strings and fragments' {
+                $result = Get-Uri -Uri 'https://example.com?query=test#section1'
+                $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $result | Should -BeOfType 'System.Uri'
+                $result.Query | Should -Be '?query=test'
+                $result.Fragment | Should -Be '#section1'
+            }
+
+            # Uri + same key query string and fragment
+            It 'Should handle URIs with query strings and fragments' {
+                $result = Get-Uri -Uri 'https://example.com?include=test&include=dev&include=prod#section1'
+                $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $result | Should -BeOfType 'System.Uri'
+                $result.Query | Should -Be '?include=test&include=dev&include=prod'
+                $result.Fragment | Should -Be '#section1'
+            }
+
+            It 'Should handle URIs with fragments' {
+                $result = Get-Uri -Uri 'https://example.com#section1'
+                $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $result | Should -BeOfType 'System.Uri'
+                $result.Fragment | Should -Be '#section1'
+            }
+
+            It 'Should handle IPv6 addresses' {
+                $result = Get-Uri -Uri 'http://[::1]'
+                $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $result | Should -BeOfType 'System.Uri'
+                $result.Host | Should -Be '[::1]'
+            }
         }
     }
 }
