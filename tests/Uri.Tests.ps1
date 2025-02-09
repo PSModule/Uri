@@ -118,7 +118,7 @@
                 'Invalid' { $Valid = $false }
             }
             if ($result) {
-                $result | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
+                $URI | Get-Uti | Out-String -Stream | ForEach-Object { Write-Verbose $_ -Verbose }
             }
             $result | Should -BeExactly $Valid
         }
