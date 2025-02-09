@@ -15,7 +15,7 @@
         True
         ```
 
-        Checks if "https://example.com" is a valid URI, returning $true.
+        Checks if `https://example.com` is a valid URI, returning `$true`.
 
         .EXAMPLE
         Test-Uri -Uri "invalid-uri"
@@ -25,7 +25,7 @@
         False
         ```
 
-        Returns $false for an invalid URI string.
+        Returns `$false` for an invalid URI string.
 
         .EXAMPLE
         "https://example.com", "invalid-uri" | Test-Uri
@@ -40,6 +40,8 @@
 
         .OUTPUTS
         [System.Boolean]
+
+        .NOTES
         Returns `$true` if the input string is a valid URI, otherwise returns `$false`.
 
         .LINK
