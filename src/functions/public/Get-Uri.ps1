@@ -1,4 +1,4 @@
-function Get-Uri {
+﻿function Get-Uri {
     <#
         .SYNOPSIS
         Converts a string into a System.Uri, System.UriBuilder, or a normalized URI string.
@@ -42,10 +42,24 @@ function Get-Uri {
 
         Returns a [System.Uri] object with the full absolute URI.
 
+        .EXAMPLE
+        Get-Uri -Uri '/path/to/resource'
+
+        Returns a relative URI (with no hostname).
+
         .LINK
         https://psmodule.io/Uri/Functions/Get-Uri
     #>
-
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        'PSReviewUnusedParameter', 'AsString',
+        Scope = 'Function',
+        Justification = 'Present for parameter sets'
+    )]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        'PSReviewUnusedParameter', 'AsUriBuilder',
+        Scope = 'Function',
+        Justification = 'Present for parameter sets'
+    )]
     [OutputType(ParameterSetName = 'UriBuilder', [System.UriBuilder])]
     [OutputType(ParameterSetName = 'String', [string])]
     [OutputType(ParameterSetName = 'AsUri', [System.Uri])]
@@ -56,21 +70,15 @@ function Get-Uri {
         [string] $Uri,
 
         # Outputs a System.UriBuilder object.
-        [Parameter(Mandatory, ParameterSetName = 'UriBuilder')]
+        [Parameter(Mandatory, ParameterSetName = 'AsUriBuilder')]
         [switch] $AsUriBuilder,
 
         # Outputs the URI as a normalized string.
-        [Parameter(Mandatory, ParameterSetName = 'String')]
+        [Parameter(Mandatory, ParameterSetName = 'AsString')]
         [switch] $AsString
     )
 
     process {
-        # Ensure mutually exclusive output switches (cannot use both simultaneously)
-        if ($PSBoundParameters.ContainsKey('AsUriBuilder') -and $PSBoundParameters.ContainsKey('AsString')) {
-            throw 'Please specify only one of -AsUriBuilder or -AsString.'
-        }
-
-        # Trim input to avoid issues with leading/trailing whitespace
         $inputString = $Uri.Trim()
         if ([string]::IsNullOrWhiteSpace($inputString)) {
             throw 'The Uri parameter cannot be null or empty.'
@@ -78,7 +86,7 @@ function Get-Uri {
 
         # Attempt to create a System.Uri (absolute) from the string
         $uriObject = $null
-        $success = [System.Uri]::TryCreate($inputString, [System.UriKind]::Absolute, [ref]$uriObject)
+        $success = [System.Uri]::TryCreate($inputString, [System.UriKind]::RelativeOrAbsolute, [ref]$uriObject)
         if (-not $success) {
             # If no scheme present, try adding "http://"
             if ($inputString -notmatch '^[A-Za-z][A-Za-z0-9+.-]*:') {
@@ -89,16 +97,29 @@ function Get-Uri {
             }
         }
 
-        switch ($PSCmdlet.ParameterSetName) {
-            'UriBuilder' {
-                return [System.UriBuilder]::new($uriObject)   # Return UriBuilder object
+        if ($uriObject.IsAbsoluteUri) {
+            switch ($PSCmdlet.ParameterSetName) {
+                'AsUriBuilder' {
+                    return ([System.UriBuilder]::new($uriObject))
+                }
+                'AsString' {
+                    return ($uriObject.GetComponents([System.UriComponents]::AbsoluteUri, [System.UriFormat]::SafeUnescaped))
+                }
+                'AsUri' {
+                    return $uriObject
+                }
             }
-            'String' {
-                # Return normalized absolute URI string (safe unescaped format)
-                return $uriObject.GetComponents([System.UriComponents]::AbsoluteUri, [System.UriFormat]::SafeUnescaped)
-            }
-            'AsUri' {
-                return $uriObject  # Return the System.Uri object by default
+        } else {
+            switch ($PSCmdlet.ParameterSetName) {
+                'AsUriBuilder' {
+                    throw 'Cannot convert a relative URI to a UriBuilder. Please supply an absolute URI.'
+                }
+                'AsString' {
+                    return $uriObject.OriginalString
+                }
+                'AsUri' {
+                    return $uriObject
+                }
             }
         }
     }
