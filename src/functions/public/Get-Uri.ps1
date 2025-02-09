@@ -1,4 +1,4 @@
-﻿function Get-Uri {
+function Get-Uri {
     <#
         .SYNOPSIS
         Converts a string into a System.Uri, System.UriBuilder, or a normalized URI string.
@@ -21,13 +21,13 @@
         Converts 'example.com' into a normalized absolute URI string.
 
         .EXAMPLE
-        Get-Uri -Uri 'https://example.com' -AsUriBuilder
+        Get-Uri -Uri 'https://example.com/path' -AsUriBuilder
 
         Output:
         ```powershell
         Host    : example.com
         Scheme  : https
-        Path    : /
+        Path    : /path
         ```
 
         Returns a [System.UriBuilder] object for the specified URI.
