@@ -10,8 +10,9 @@
         fragment identifiers. By default, returns a `[System.Uri]` object.
 
         .EXAMPLE
-        # Simple usage with base and path
+        ```pwsh
         New-Uri -BaseUri 'https://example.com' -Path 'products/item'
+        ```
 
         Output:
         ```powershell
@@ -42,8 +43,9 @@
         Constructs a URI with the given base and path.
 
         .EXAMPLE
-        # Adding query parameters via hashtable
+        ```pwsh
         New-Uri 'https://example.com/api' -Path 'search' -Query @{ q = 'test search'; page = @(2, 4) } -AsUriBuilder
+        ```
 
         Output:
         ```powershell
@@ -61,8 +63,9 @@
         Adds query parameters to the URI, automatically encoding values.
 
         .EXAMPLE
-        # Merging with existing query and using -MergeQueryParameter
+        ```pwsh
         New-Uri 'https://example.com/data?year=2023' -Query @{ year = 2024; sort = 'asc' } -MergeQueryParameters -AsString
+        ```
 
         Output:
         ```powershell
