@@ -9,8 +9,10 @@
         and values are URL-encoded per RFC3986 rules to ensure the query string is valid. If a value
         is an array, multiple entries for the same key are generated.
 
-        .EXAMPLE
+        .EXAMPLE`
+        ```pwsh
         ConvertTo-UriQueryString -Query @{ foo = 'bar'; search = 'hello world'; ids = 1,2,3 }
+        ```
 
         Output:
         ```powershell
