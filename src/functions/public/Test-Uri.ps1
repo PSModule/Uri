@@ -8,7 +8,9 @@
         If the `-AllowRelative` switch is specified, it allows both absolute and relative URIs.
 
         .EXAMPLE
+        ```pwsh
         Test-Uri -Uri "https://example.com"
+        ```
 
         Output:
         ```powershell
@@ -18,7 +20,9 @@
         Checks if `https://example.com` is a valid URI, returning `$true`.
 
         .EXAMPLE
+        ```pwsh
         Test-Uri -Uri "invalid-uri"
+        ```
 
         Output:
         ```powershell
@@ -28,7 +32,9 @@
         Returns `$false` for an invalid URI string.
 
         .EXAMPLE
+        ```pwsh
         "https://example.com", "invalid-uri" | Test-Uri
+        ```
 
         Output:
         ```powershell

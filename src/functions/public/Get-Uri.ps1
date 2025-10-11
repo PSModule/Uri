@@ -11,7 +11,9 @@
         format parameters.
 
         .EXAMPLE
+        ```pwsh
         Get-Uri -Uri 'example.com'
+        ```
 
         Output:
         ```powershell
@@ -42,7 +44,9 @@
         Converts 'example.com' into a normalized absolute URI string.
 
         .EXAMPLE
+        ```pwsh
         Get-Uri -Uri 'https://example.com/path' -AsUriBuilder
+        ```
 
         Output:
         ```powershell
@@ -60,7 +64,9 @@
         Returns a [System.UriBuilder] object for the specified URI.
 
         .EXAMPLE
+        ```pwsh
         'example.com/path' | Get-Uri -AsString
+        ```
 
         Output:
         ```powershell

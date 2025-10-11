@@ -10,7 +10,9 @@
         is an array, multiple entries for the same key are generated.
 
         .EXAMPLE
+        ```pwsh
         ConvertTo-UriQueryString -Query @{ foo = 'bar'; search = 'hello world'; ids = 1,2,3 }
+        ```
 
         Output:
         ```powershell
